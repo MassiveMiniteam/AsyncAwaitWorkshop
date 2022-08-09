@@ -33,6 +33,21 @@ namespace ExampleSaveData
         }
     }
     
+    public class SaveSystemPlayerPrefs : ISaveSystem
+    {
+        public Task SaveDataToPathAsync(string path, string data)
+        {
+            PlayerPrefs.SetString(path, data);
+            return Task.CompletedTask;
+        }
+        
+        public Task<string> LoadDataFromPathAsync(string path)
+        {
+            var data = PlayerPrefs.GetString(path);
+            return Task.FromResult<string>(data);
+        }
+    }
+    
     public class SavePanel : MonoBehaviour
     {
         [SerializeField] private TMP_InputField pathField;

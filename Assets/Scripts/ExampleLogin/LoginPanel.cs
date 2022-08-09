@@ -14,36 +14,42 @@ namespace ExampleLogin
         private readonly IOnlineSystem _onlineSystem = new OnlineSystem();
         private readonly IExternalAuthentication _externalAuthentication = new ExternalAuthentication();
     
-        public async void LoginPressed()
+        private readonly CancellationTokenSource _cts = new();
+        
+        public void LoginPressed()
         {
             var username = usernameField.text;
             var password = passwordField.text;
 
-            await LoginAsync(username, password);
+            LoginAsyncWithCancellation(username, password);
         }
 
-        private CancellationTokenSource cts = new();
-        
-        private async Task LoginAsync(string username, string password)
+        private async void LoginAsyncWithCancellation(string username, string password)
         {
             try
             {
                 Debug.Log($"Starting Login: Username [{username}] Password [{password}]");
                 
-                var success = await _onlineSystem.LoginAsync(username, password, default, cts.Token);
+                var success = await _onlineSystem.LoginAsync(username, password, 123, _cts.Token);
                 
                 Debug.Log($"Completed Login: {(success ? "Success" : "Failed")}");
+                
                 new GameObject("Hello World");
             }
             catch (OperationCanceledException)
             {
-                
             }
         }
 
         private void OnDestroy()
         {
-            cts.Cancel();
+            _cts.Cancel();
+        }
+
+        private async void LoginAsync(string username, string password)
+        {
+            var token = await _externalAuthentication.RequestTokenAsync();
+            var success = await _onlineSystem.LoginAsync(username, password, token);
         }
 
         private void LoginSync(string username, string password)
@@ -56,7 +62,7 @@ namespace ExampleLogin
         {
             Debug.Log($"Starting Login: Username [{username}] Password [{password}]");
 
-            _externalAuthentication.RequestToken(delegate(int token)
+            _externalAuthentication.RequestToken(token =>
             {
                 Debug.Log("Received Token");
 

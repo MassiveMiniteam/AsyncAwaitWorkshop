@@ -9,7 +9,6 @@ namespace ExampleSaveData.Platform
         {
             SaveInternal(path, data, callback);
         }
-
         public static void Load(string path, Action<string> callback)
         {
             LoadInternal(path, callback);
