@@ -6,13 +6,13 @@ using UnityEngine.UI;
 
 namespace ExampleSaveData
 {
-    public class SaveSystemStadia : ISaveSystem
+    public class SaveSystemPlatform : ISaveSystem
     {
         public async Task SaveDataToPathAsync(string path, string data)
         {
             var taskCompletion = new TaskCompletionSource<object>();
             
-            StadiaSaveAPI.Save(path, data, delegate(bool b)
+            PlatformSaveAPI.Save(path, data, result =>
             {
                 taskCompletion.SetResult(null);
             });
@@ -24,7 +24,7 @@ namespace ExampleSaveData
         {
             var taskCompletion = new TaskCompletionSource<string>();
             
-            StadiaSaveAPI.Load(path, (data) => 
+            PlatformSaveAPI.Load(path, (data) => 
             {
                 taskCompletion.SetResult(data);
             });
@@ -53,7 +53,8 @@ namespace ExampleSaveData
         [SerializeField] private TMP_InputField pathField;
         [SerializeField] private TMP_InputField dataField;
 
-        private readonly ISaveSystem _saveSystem = new SaveSystemStadia();
+        // or use SaveSystemPlayerPrefs
+        private readonly ISaveSystem _saveSystem = new SaveSystemPlatform();
 
         public async void SavePressed()
         {
